@@ -1,0 +1,63 @@
+id = "collapse-agents"
+name = "Collapse Agents"
+version = "0.1.0"
+min_herdr_version = "0.9.1"
+description = "Collapse the sidebar Agents list to a status rollup and the agents waiting on input"
+platforms = ["linux", "macos"]
+
+[[actions]]
+id = "toggle"
+title = "Toggle collapsed Agents list"
+contexts = ["global"]
+command = ["sh", "bin/node-run", "src/cli.mjs", "toggle"]
+
+# Re-apply the saved collapsed state after a server start.
+[[startup]]
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+# Re-apply the view whenever the agent set, a status, "seen" or a pane_id can change.
+# Focus events matter because marking an agent seen (done -> idle) emits no status event.
+# Moves matter for show = "latest", which filters on a pane_id that a move changes.
+[[events]]
+on = "pane.agent_status_changed"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "pane.agent_detected"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "pane.closed"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "pane.exited"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "pane.moved"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "pane.focused"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "tab.focused"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "tab.closed"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "tab.moved"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "workspace.focused"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
+
+[[events]]
+on = "workspace.closed"
+command = ["sh", "bin/node-run", "src/cli.mjs", "refresh"]
