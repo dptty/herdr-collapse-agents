@@ -1,0 +1,29 @@
+#!/bin/sh
+# Runs node with the given arguments. herdr's server can run with a minimal PATH (as a
+# Homebrew service it gets /usr/bin:/bin:/usr/sbin:/sbin), so look for node in the usual places.
+# Override: put the full path to node in "$HERDR_PLUGIN_CONFIG_DIR/node-path".
+
+find_node() {
+  if [ -n "$HERDR_PLUGIN_CONFIG_DIR" ] && [ -f "$HERDR_PLUGIN_CONFIG_DIR/node-path" ]; then
+    head -n 1 "$HERDR_PLUGIN_CONFIG_DIR/node-path"
+    return
+  fi
+  if command -v node >/dev/null 2>&1; then
+    command -v node
+    return
+  fi
+  newest_nvm=$(ls -d "$HOME"/.nvm/versions/node/v*/bin/node 2>/dev/null | sort -V | tail -n 1)
+  for candidate in "$newest_nvm" /opt/homebrew/bin/node /usr/local/bin/node "$HOME/.volta/bin/node"; do
+    if [ -n "$candidate" ] && [ -x "$candidate" ]; then
+      echo "$candidate"
+      return
+    fi
+  done
+}
+
+node_bin=$(find_node)
+if [ -z "$node_bin" ]; then
+  echo "collapse-agents: node not found; put its full path in \$HERDR_PLUGIN_CONFIG_DIR/node-path" >&2
+  exit 127
+fi
+exec "$node_bin" "$@"
